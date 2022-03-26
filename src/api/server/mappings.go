@@ -6,11 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/martin98sanch/ABM-user/src/api/server/url"
+	"github.com/martin98sanch/ABM-user/src/api/user"
 )
 
 func urlMapping(router *gin.Engine) {
 	router.GET(url.Ping, ping)
-	//router.POST(url.CreateUser, user.Create)
+	router.POST(url.CreateUser, user.Create)
 
 	router.NoRoute(endpointNotFound)
 }
