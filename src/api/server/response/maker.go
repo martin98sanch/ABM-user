@@ -10,10 +10,11 @@ var (
 	validHTTPCodes = []int{
 		http.StatusOK,
 		http.StatusCreated,
+		http.StatusNoContent,
 	}
 )
 
-func Make(ctx *gin.Context, statusCode int, body interface{}) {
+func Make(ctx *gin.Context, statusCode int, body ...interface{}) {
 	var messageBody interface{}
 	messageBody = gin.H{
 		"status_code": statusCode,
