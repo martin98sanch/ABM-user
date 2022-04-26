@@ -9,10 +9,10 @@ import (
 
 type (
 	ExecFunc  func(query string, args ...interface{}) (sql.Result, error)
-	QueryFunc func(query string, args ...interface{}) (sql.Rows, error)
+	QueryFunc func(query string, args ...interface{}) (*sql.Rows, error)
 )
 
-const url = "root:123456@tcp(localhost:3306)/goweb_db"
+const url = "root:toor@tcp(localhost:3306)/ABM_users"
 
 var db *sql.DB
 

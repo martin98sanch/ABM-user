@@ -1,7 +1,10 @@
 package user
 
 import (
+	"errors"
+	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -11,14 +14,17 @@ import (
 
 type Handler struct {
 	UserCreator CreatorFunc
+	GetUserList GetListFunc
+	GetByID     GetByIDFunc
 }
 
 var (
 	ParamBody     = "body"
 	ParamUserName = "username"
+	ParamUserID   = "user_id"
 )
 
-//ValidateCreate func make the validation for create a user
+// ValidateCreate func make the validation for create a user
 func (handler Handler) ValidateCreate(ctx *gin.Context) {
 	var body DTO
 	err := request.GetJsonBody(ctx, &body)
@@ -38,6 +44,12 @@ func (handler Handler) Create(ctx *gin.Context) {
 	user := ctx.MustGet(ParamBody).(DTO)
 
 	if err := handler.UserCreator(&user); err != nil {
+		if errors.Is(err, ErrUserAlreadyExist) {
+			log.Printf("1 err: %+v", err)
+			response.Make(ctx, http.StatusNotAcceptable, err)
+			return
+		}
+		log.Printf("err: %+v", err)
 		response.Make(ctx, http.StatusInternalServerError, ErrCantCreateUser)
 		return
 	}
@@ -45,6 +57,44 @@ func (handler Handler) Create(ctx *gin.Context) {
 	return
 }
 
-//TODO: Ya esta en teoria todo menos el eliminado de un usuario en la base de datos
-// Queda pendiente crear en http.go para usar las demas funciones y probar
-// Dar cobertura desp
+// GetList func get a list of all users in the database
+func (handler Handler) GetList(ctx *gin.Context) {
+	userList, err := handler.GetUserList()
+	if err != nil {
+		response.Make(ctx, http.StatusInternalServerError, ErrCantGetUserList)
+		return
+	}
+
+	response.Make(ctx, http.StatusOK, userList)
+}
+
+//ValidateGet func get a user by a given ID
+func (handler Handler) ValidateGet(ctx *gin.Context) {
+	userIDParam := ctx.Param(ParamUserID)
+	userID, err := strconv.Atoi(userIDParam)
+	if err != nil {
+		response.Make(ctx, http.StatusBadRequest, ErrInvalidUserID)
+	}
+	ctx.Set(ParamUserID, ID(userID))
+}
+
+// Get func returns user info from a given ID
+func (handler Handler) Get(ctx *gin.Context) {
+	userID := ctx.MustGet(ParamUserID).(ID)
+
+	user, err := handler.GetByID(userID)
+	if err != nil {
+		if errors.Is(err, ErrNotFound) {
+			response.Make(ctx, http.StatusNotFound, err)
+			return
+		}
+		response.Make(ctx, http.StatusInternalServerError, ErrCantGetUserByID)
+		return
+	}
+	response.Make(ctx, http.StatusOK, user)
+	return
+}
+
+// TODO: Dar cobertura a todo
+// TODO: Hacer Delete y Update
+// TODO: Hacer el controlador y las vistas

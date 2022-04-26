@@ -1,13 +1,15 @@
 package user
 
 type (
+	ID    int
 	Users []DTO
 	DTO   struct {
-		ID       int    `json:"id"`
+		ID       ID     `json:"id"`
 		Username string `json:"username"`
 		Password string `json:"password"`
 		Name     string `json:"name"`
 		Age      int    `json:"age"`
+		Deleted  bool   `json:"deleted"`
 	}
 )
 

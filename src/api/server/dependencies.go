@@ -8,11 +8,31 @@ import (
 func resolveUserHandler() *user.Handler {
 	return &user.Handler{
 		UserCreator: resolveUserCreatorFunc(),
+		GetUserList: resolveUserListGetterFunc(),
+		GetByID:     resolveUserByIDFunc(),
 	}
 }
 
+func resolveUserListGetterFunc() user.GetListFunc {
+	f, err := user.MakeGetListFunc(sql.Query)
+	if err != nil {
+		panic(err)
+	}
+
+	return f
+}
+
+func resolveUserByIDFunc() user.GetByIDFunc {
+	f, err := user.MakeGetByIDFunc(sql.Query)
+	if err != nil {
+		panic(err)
+	}
+
+	return f
+}
+
 func resolveUserCreatorFunc() user.CreatorFunc {
-	f, err := user.MakeCreatorFunc(sql.Exec)
+	f, err := user.MakeCreatorFunc(sql.Exec, sql.Query)
 	if err != nil {
 		panic(err)
 	}
