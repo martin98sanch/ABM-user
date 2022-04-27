@@ -7,11 +7,15 @@ type (
 )
 
 //Update user info
-func MakeUpdate(sqlExec sql.ExecFunc) (UpdateByIDFunc, error) {
+func MakeUpdateByIDFunc(sqlExec sql.ExecFunc, sqlQuery sql.QueryFunc) (UpdateByIDFunc, error) {
 	if sqlExec == nil {
 		return nil, ErrCantMakeTheInjection
 	}
 	return func(user *DTO) error {
+		if err := validateData(sqlQuery, user); err != nil {
+			return err
+		}
+
 		query := sql.UpdateUserByIDStatement
 		if _, err := sql.Exec(query, user.Username, user.Password, user.Name, user.Age, user.ID); err != nil {
 			return ErrCantUpdateUserByID

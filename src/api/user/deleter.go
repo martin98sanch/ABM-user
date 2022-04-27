@@ -9,7 +9,7 @@ type (
 )
 
 //Delete user. This is not a hard delete
-func MakeDelete(sqlExec sql.ExecFunc) (DeleteByIDFunc, error) {
+func MakeDeleteByIDFunc(sqlExec sql.ExecFunc) (DeleteByIDFunc, error) {
 	if sqlExec == nil {
 		return nil, ErrCantMakeTheInjection
 	}

@@ -4,5 +4,5 @@ const (
 	Ping        = "/ping"
 	CreateUser  = "/user/create"
 	GetUserList = "/users"
-	GetUserByID = "/user/:user_id"
+	UserByID    = "/user/:user_id"
 )
