@@ -10,7 +10,27 @@ func resolveUserHandler() *user.Handler {
 		UserCreator: resolveUserCreatorFunc(),
 		GetUserList: resolveUserListGetterFunc(),
 		GetByID:     resolveUserByIDFunc(),
+		DeleteByID:  resolveUserDeleteByIDFunc(),
+		UpdateByID:  resolveUserUpdateByIDFunc(),
 	}
+}
+
+func resolveUserUpdateByIDFunc() user.UpdateByIDFunc {
+	f, err := user.MakeUpdateByIDFunc(sql.Exec, sql.Query)
+	if err != nil {
+		panic(err)
+	}
+
+	return f
+}
+
+func resolveUserDeleteByIDFunc() user.DeleteByIDFunc {
+	f, err := user.MakeDeleteByIDFunc(sql.Exec)
+	if err != nil {
+		panic(err)
+	}
+
+	return f
 }
 
 func resolveUserListGetterFunc() user.GetListFunc {

@@ -1,8 +1,6 @@
 package user
 
 import (
-	"log"
-
 	"github.com/martin98sanch/ABM-user/src/api/sql"
 )
 
@@ -19,8 +17,6 @@ func MakeCreatorFunc(sqlExec sql.ExecFunc, sqlQuery sql.QueryFunc) (CreatorFunc,
 		if err := validateData(sqlQuery, user); err != nil {
 			return err
 		}
-
-		log.Printf("pasa el validate")
 
 		query := sql.InsertUserStatement
 		if _, err := sqlExec(query, user.Username, user.Password, user.Name, user.Age); err != nil {

@@ -2,7 +2,6 @@ package user
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -16,6 +15,8 @@ type Handler struct {
 	UserCreator CreatorFunc
 	GetUserList GetListFunc
 	GetByID     GetByIDFunc
+	DeleteByID  DeleteByIDFunc
+	UpdateByID  UpdateByIDFunc
 }
 
 var (
@@ -45,11 +46,9 @@ func (handler Handler) Create(ctx *gin.Context) {
 
 	if err := handler.UserCreator(&user); err != nil {
 		if errors.Is(err, ErrUserAlreadyExist) {
-			log.Printf("1 err: %+v", err)
 			response.Make(ctx, http.StatusNotAcceptable, err)
 			return
 		}
-		log.Printf("err: %+v", err)
 		response.Make(ctx, http.StatusInternalServerError, ErrCantCreateUser)
 		return
 	}
@@ -95,6 +94,69 @@ func (handler Handler) Get(ctx *gin.Context) {
 	return
 }
 
+// ValidateDelete func mark a user as deleted by a given ID
+func (handler Handler) ValidateDelete(ctx *gin.Context) {
+	userIDParam := ctx.Param(ParamUserID)
+	userID, err := strconv.Atoi(userIDParam)
+	if err != nil {
+		response.Make(ctx, http.StatusBadRequest, ErrInvalidUserID)
+	}
+	ctx.Set(ParamUserID, ID(userID))
+}
+
+// Delete func returns user info from a given ID
+func (handler Handler) Delete(ctx *gin.Context) {
+	userID := ctx.MustGet(ParamUserID).(ID)
+
+	if err := handler.DeleteByID(userID); err != nil {
+		response.Make(ctx, http.StatusInternalServerError, ErrCantDeleteUserByID)
+		return
+	}
+	response.Make(ctx, http.StatusOK)
+	return
+}
+
+// ValidatePut func update user info by a given ID
+func (handler Handler) ValidatePut(ctx *gin.Context) {
+	userIDParam := ctx.Param(ParamUserID)
+	userID, err := strconv.Atoi(userIDParam)
+	if err != nil {
+		response.Make(ctx, http.StatusBadRequest, ErrInvalidUserID)
+	}
+	ctx.Set(ParamUserID, ID(userID))
+
+	var body DTO
+	err = request.GetJsonBody(ctx, &body)
+	if err != nil {
+		response.Make(ctx, http.StatusBadRequest, ErrInvalidBody)
+		return
+	}
+	if err := body.Validate(); err != nil {
+		response.Make(ctx, http.StatusBadRequest, err)
+		return
+	}
+	ctx.Set(ParamBody, body)
+
+}
+
+// Put func update user info by a given ID
+func (handler Handler) Put(ctx *gin.Context) {
+	userID := ctx.MustGet(ParamUserID).(ID)
+	newUserInfo := ctx.MustGet(ParamBody).(DTO)
+	newUserInfo.ID = userID
+
+	if err := handler.UpdateByID(&newUserInfo); err != nil {
+		if errors.Is(err, ErrUserAlreadyExist) {
+			response.Make(ctx, http.StatusNotAcceptable, err)
+			return
+		}
+		response.Make(ctx, http.StatusInternalServerError, ErrCantUpdateUserByID)
+		return
+	}
+	response.Make(ctx, http.StatusOK)
+	return
+}
+
 // TODO: Dar cobertura a todo
-// TODO: Hacer Delete y Update
+// TODO: Consumir info de los yml (en chrome del trabajo deje un proyecto que tiene todo armado)
 // TODO: Hacer el controlador y las vistas

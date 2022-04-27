@@ -17,9 +17,17 @@ func urlMapping(router *gin.Engine) {
 	router.GET(url.GetUserList,
 		userHandler.GetList)
 
-	router.GET(url.GetUserByID,
+	router.GET(url.UserByID,
 		userHandler.ValidateGet,
 		userHandler.Get)
+
+	router.DELETE(url.UserByID,
+		userHandler.ValidateDelete,
+		userHandler.Delete)
+
+	router.PUT(url.UserByID,
+		userHandler.ValidatePut,
+		userHandler.Put)
 
 	router.GET(url.Ping, ping)
 	router.NoRoute(endpointNotFound)

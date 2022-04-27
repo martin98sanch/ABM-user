@@ -22,7 +22,6 @@ func Connect() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Conexion exitosa")
 	db = conection
 }
 
