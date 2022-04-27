@@ -1,24 +1,18 @@
 package request
 
 import (
-	"io/ioutil"
-	"log"
+	"encoding/json"
+	"errors"
 
 	"github.com/gin-gonic/gin"
 )
 
-// TODO: Analizar como conseguir el body de un request
-func GetJsonBody(ctx *gin.Context) (interface{}, error) {
-	jsonData, err := ioutil.ReadAll(ctx.Request.Body)
-	if err != nil {
-		return []byte{}, err
-	}
-	log.Printf("JSON: %+v", jsonData)
+var ErrCantReadBody = errors.New("can't read body")
 
-	return jsonData, nil
-	/*	var result interface{}
-		if err := ctx.BindJSON(&result); err != nil {
-			return nil, err
-		}
-		return result, nil*/
+func GetJsonBody(ctx *gin.Context, bodyStruct interface{}) error {
+	err := json.NewDecoder(ctx.Request.Body).Decode(&bodyStruct)
+	if err != nil {
+		return ErrCantReadBody
+	}
+	return nil
 }

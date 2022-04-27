@@ -10,10 +10,13 @@ var (
 	validHTTPCodes = []int{
 		http.StatusOK,
 		http.StatusCreated,
+		http.StatusNoContent,
 	}
 )
 
-func Make(ctx *gin.Context, statusCode int, body interface{}) {
+//TODO: Anda medio mal, en los status codes negativos, no postea el body en message
+// En los success, agarra todo en un array
+func Make(ctx *gin.Context, statusCode int, body ...interface{}) {
 	var messageBody interface{}
 	messageBody = gin.H{
 		"status_code": statusCode,

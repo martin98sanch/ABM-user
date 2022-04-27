@@ -9,9 +9,19 @@ import (
 )
 
 func urlMapping(router *gin.Engine) {
-	router.GET(url.Ping, ping)
-	//router.POST(url.CreateUser, user.Create)
+	userHandler := resolveUserHandler()
 
+	router.POST(url.CreateUser,
+		userHandler.ValidateCreate, userHandler.Create)
+
+	router.GET(url.GetUserList,
+		userHandler.GetList)
+
+	router.GET(url.GetUserByID,
+		userHandler.ValidateGet,
+		userHandler.Get)
+
+	router.GET(url.Ping, ping)
 	router.NoRoute(endpointNotFound)
 }
 
